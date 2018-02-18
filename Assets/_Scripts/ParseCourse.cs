@@ -14,12 +14,16 @@ public class ParseCourse : MonoBehaviour {
 	// !!! REMEMBER THAT ALL RACECOURSE FILES ARE IN INCHES, AND MUST BE CONVERTED TO METERS
 	List<Vector3> checkpointPos;
 	List<GameObject> checkpoints;
-	public GameObject checkpointPrefab;
+	public CheckpointState checkpointPrefab;
 
 	/* Race Game */
 	GameObject targetCheckpoint;
 	GameObject nextCheckpoint;
-	GameObject arrow;
+	GameObject prevCheckpoint = null;
+	public GameObject arrow;
+	public Material checkpointGreyed;
+	public Material checkpointNext;
+	public Material checkpointPassed;
 
 	// Add Checkpoints to map
 	void Start () {
@@ -30,6 +34,10 @@ public class ParseCourse : MonoBehaviour {
 			return;
 		}
 		string[] coordinates = File.ReadAllLines (path);
+		if (coordinates.Length == 0) {
+			NoCourseEffects ();
+			return;
+		}
 		checkpointPos = new List<Vector3> (coordinates.Length); 
 
 		/* Read coordinates */
@@ -59,9 +67,16 @@ public class ParseCourse : MonoBehaviour {
 		/* Create checkpoints */
 		checkpoints = new List<GameObject> ();
 		for (int cpi = 0; cpi < checkpointPos.Count; cpi++) {
-			Debug.Log ("WAT");
-			var ckpt = Instantiate (checkpointPrefab, checkpointPos [cpi], new Quaternion ());
+			var ckpt = CreateCheckpoint ();
 			checkpoints.Add (ckpt);
+		}
+			
+		/* Make first checkpoint noticable color */
+		var ckptRender = checkpoints [0].GetComponent<Renderer> ();
+		if (ckptRender != null) {
+			ckptRender.material = checkpointNext;
+		} else {
+			Debug.Log ("First checkpoint has no Renderer");
 		}
 	}
 	
@@ -70,7 +85,17 @@ public class ParseCourse : MonoBehaviour {
 		
 	}
 
-
+	GameObject CreateCheckpoint () {
+		GameObject ckpt = Instantiate (checkpointPrefab, checkpointPos [cpi], new Quaternion ());
+		// make ckpts grey as default
+		Renderer renderer = ckpt.GetComponents<Renderer>();
+		if (renderer != null) {
+			renderer.material = checkpointGreyed;
+		} else {
+			Debug.Log ("NO RENDERER IN " + ckpt.name);
+		}
+		return ckpt;
+	}
 	void NoCourseEffects () {
 		RenderSettings.skybox = noCourseSkybox;
 		noCourseLightOff.enabled = false;
