@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657958, g: 0.4964137, b: 0.5748193, a: 1}
+  m_IndirectSpecularColor: {r: 0.4465794, g: 0.4964136, b: 0.574819, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -437,8 +437,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noCourseSkybox: {fileID: 2100000, guid: e222162ddb8d34547a133b673221b195, type: 2}
   noCourseLightOff: {fileID: 1023957073}
-  checkpointPrefab: {fileID: 1366326027727342, guid: ae5d8165f4d784449b8e3d8fe7792b8d,
+  checkpointPrefab: {fileID: 114936236828558156, guid: ae5d8165f4d784449b8e3d8fe7792b8d,
     type: 2}
+  arrow: {fileID: 0}
+  checkpointGreyed: {fileID: 2100000, guid: a44ccbf04b05bc44289998bd7d7b8d22, type: 2}
+  checkpointNext: {fileID: 2100000, guid: 997083eda2c88dd43ae403d49b16fe42, type: 2}
+  checkpointPassed: {fileID: 2100000, guid: ff56763e5398f42439f4c67f54d31514, type: 2}
 --- !u!4 &1910557140
 Transform:
   m_ObjectHideFlags: 0

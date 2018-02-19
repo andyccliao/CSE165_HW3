@@ -4,6 +4,8 @@ using UnityEngine;
 using System.IO;
 using UnityEditor;
 
+public delegate void TouchedTarget(CheckpointState targetckpt);
+
 public class ParseCourse : MonoBehaviour {
 	/* No Course */
 	public Material noCourseSkybox;
@@ -13,7 +15,7 @@ public class ParseCourse : MonoBehaviour {
 	/* RaceCourse */
 	// !!! REMEMBER THAT ALL RACECOURSE FILES ARE IN INCHES, AND MUST BE CONVERTED TO METERS
 	List<Vector3> checkpointPos;
-	List<GameObject> checkpoints;
+	List<CheckpointState> checkpoints;
 	public CheckpointState checkpointPrefab;
 
 	/* Race Game */
@@ -65,19 +67,14 @@ public class ParseCourse : MonoBehaviour {
 		}
 
 		/* Create checkpoints */
-		checkpoints = new List<GameObject> ();
+		checkpoints = new List<CheckpointState> ();
 		for (int cpi = 0; cpi < checkpointPos.Count; cpi++) {
-			var ckpt = CreateCheckpoint ();
+			var ckpt = CreateCheckpoint (checkpointPos[cpi]);
 			checkpoints.Add (ckpt);
 		}
 			
 		/* Make first checkpoint noticable color */
-		var ckptRender = checkpoints [0].GetComponent<Renderer> ();
-		if (ckptRender != null) {
-			ckptRender.material = checkpointNext;
-		} else {
-			Debug.Log ("First checkpoint has no Renderer");
-		}
+		checkpoints [0].SetMaterial (checkpointNext);
 	}
 	
 	// Update is called once per frame
@@ -85,15 +82,10 @@ public class ParseCourse : MonoBehaviour {
 		
 	}
 
-	GameObject CreateCheckpoint () {
-		GameObject ckpt = Instantiate (checkpointPrefab, checkpointPos [cpi], new Quaternion ());
+	CheckpointState CreateCheckpoint (Vector3 ckptPos) {
+		CheckpointState ckpt = Instantiate (checkpointPrefab, ckptPos, new Quaternion ());
 		// make ckpts grey as default
-		Renderer renderer = ckpt.GetComponents<Renderer>();
-		if (renderer != null) {
-			renderer.material = checkpointGreyed;
-		} else {
-			Debug.Log ("NO RENDERER IN " + ckpt.name);
-		}
+		ckpt.SetMaterial(checkpointGreyed);
 		return ckpt;
 	}
 	void NoCourseEffects () {
