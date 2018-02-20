@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class CheckpointState : MonoBehaviour {
 
-	TouchedTarget callback = null;
+	TouchedTarget onTriggerEnterCallback = null;
 
 	void OnTriggerEnter (Collider col) {
-		if (callback != null) {
-			callback ();
-			callback = null;
-
+		if (onTriggerEnterCallback != null) {
+			onTriggerEnterCallback (this);
+			onTriggerEnterCallback = null;
 		} 
 	}
 

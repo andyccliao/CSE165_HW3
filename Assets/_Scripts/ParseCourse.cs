@@ -9,7 +9,8 @@ public delegate void TouchedTarget(CheckpointState targetckpt);
 public class ParseCourse : MonoBehaviour {
 	/* No Course */
 	public Material noCourseSkybox;
-	public Light noCourseLightOff;
+	public GameObject noCourseLightsOff;
+    public GameObject noCourseLightOn;
 	private bool noCourse;
 
 	/* RaceCourse */
@@ -18,7 +19,8 @@ public class ParseCourse : MonoBehaviour {
 	List<CheckpointState> checkpoints;
 	public CheckpointState checkpointPrefab;
 
-	/* Race Game */
+    /* Race Game */
+    public GameObject player;
 	GameObject targetCheckpoint;
 	GameObject nextCheckpoint;
 	GameObject prevCheckpoint = null;
@@ -36,7 +38,7 @@ public class ParseCourse : MonoBehaviour {
 			return;
 		}
 		string[] coordinates = File.ReadAllLines (path);
-		if (coordinates.Length == 0) {
+		if (coordinates.Length <= 1) {
 			NoCourseEffects ();
 			return;
 		}
@@ -66,14 +68,18 @@ public class ParseCourse : MonoBehaviour {
 			checkpointPos[pos] *= 0.0254f;
 		}
 
-		/* Create checkpoints */
+		/* Create checkpoints (player is placed at first coordinate) */
 		checkpoints = new List<CheckpointState> ();
-		for (int cpi = 0; cpi < checkpointPos.Count; cpi++) {
+		for (int cpi = 1; cpi < checkpointPos.Count; cpi++) {
 			var ckpt = CreateCheckpoint (checkpointPos[cpi]);
 			checkpoints.Add (ckpt);
 		}
-			
-		/* Make first checkpoint noticable color */
+
+        /* Place player at first pos */
+        player.transform.position = checkpointPos[0];
+        player.transform.LookAt(checkpoints[0].transform); // Rotate towards first checkpoint
+
+        /* Set first target checkpoint to noticable color */
 		checkpoints [0].SetMaterial (checkpointNext);
 	}
 	
@@ -82,6 +88,7 @@ public class ParseCourse : MonoBehaviour {
 		
 	}
 
+    // Create a grey checkpoint
 	CheckpointState CreateCheckpoint (Vector3 ckptPos) {
 		CheckpointState ckpt = Instantiate (checkpointPrefab, ckptPos, new Quaternion ());
 		// make ckpts grey as default
@@ -90,7 +97,8 @@ public class ParseCourse : MonoBehaviour {
 	}
 	void NoCourseEffects () {
 		RenderSettings.skybox = noCourseSkybox;
-		noCourseLightOff.enabled = false;
+        noCourseLightsOff.SetActive(false);
+        noCourseLightOn.SetActive(true);
 		noCourse = true;
 	}
 
