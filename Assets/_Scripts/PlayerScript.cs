@@ -26,6 +26,7 @@ public class PlayerScript : MonoBehaviour {
         Hand rHand = frame.Hand(rightHandId);
         //Debug.Log(leftHandId + " | " + rightHandId);
 
+        //Assumes only two hands
         if (lHand == null || rHand == null) {
             if (frame.Hands.Count >= 1) {
                 Hand hand1 = frame.Hands[0];
@@ -51,8 +52,10 @@ public class PlayerScript : MonoBehaviour {
             }
         }
 
-        if (lHand != null && rHand != null)
-            Debug.DrawLine(lHand.PalmPosition.ToVector3(), lHand.PalmPosition.ToVector3() + lHand.PalmNormal.ToVector3());
+        if (lHand != null && rHand != null) {
+            Vector3 leapLPalm = lHand.PalmPosition.ToVector3();
+            Debug.DrawLine(leapLPalm, leapLPalm + 10 * lHand.PalmNormal.ToVector3(), Color.white);
+        }
     }
 
     
