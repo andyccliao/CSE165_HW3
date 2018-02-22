@@ -6,7 +6,7 @@ using UnityEditor;
 
 public delegate void TouchedTarget(CheckpointState targetckpt);
 
-public class ParseCourse : MonoBehaviour {
+public class RaceCourse : MonoBehaviour {
 	/* No Course */
 	public Material noCourseSkybox;
 	public GameObject noCourseLightsOff;
@@ -28,6 +28,7 @@ public class ParseCourse : MonoBehaviour {
 	public Material checkpointGreyed;
 	public Material checkpointNext;
 	public Material checkpointPassed;
+    int checkpointNum = 0;
 
 	// Add Checkpoints to map
 	void Start () {
@@ -46,7 +47,7 @@ public class ParseCourse : MonoBehaviour {
 
 		/* Read coordinates */
 		for (int i = 0; i < coordinates.Length; i++) {
-			Debug.Log (coordinates[i]);
+			//Debug.Log (coordinates[i]);
 			// For each checkpoint's coordinates
 			string[] splitCoord = coordinates [i].Split(' ');
 			float[] parsedCoord = new float[splitCoord.Length];
@@ -80,8 +81,16 @@ public class ParseCourse : MonoBehaviour {
         player.transform.LookAt(checkpoints[0].transform); // Rotate towards first checkpoint
 
         /* Set first target checkpoint to noticable color */
-		checkpoints [0].SetMaterial (checkpointNext);
+		checkpoints [checkpointNum].SetMaterial (checkpointNext);
+        checkpoints[checkpointNum].SetOnTriggerEnterCallback(touchedTarget);
 	}
+
+    void touchedTarget(CheckpointState targetckpt)
+    {
+        // Disable touched checkpoint
+        checkpoints[checkpointNum].enabled = false;
+        // 
+    }
 	
 	// Update is called once per frame
 	void Update () {

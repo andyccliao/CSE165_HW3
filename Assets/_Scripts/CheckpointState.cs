@@ -21,4 +21,9 @@ public class CheckpointState : MonoBehaviour {
 			Debug.Log ("NO RENDERER IN " + name);
 		}
 	}
+
+    public void SetOnTriggerEnterCallback(TouchedTarget cb)
+    {
+        onTriggerEnterCallback = cb;
+    }
 }
