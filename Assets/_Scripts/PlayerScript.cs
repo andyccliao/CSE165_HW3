@@ -8,7 +8,7 @@ public class PlayerScript : MonoBehaviour {
 
     private int leftHandId;
     private int rightHandId;
-    private bool movementActive, stoppingActive;
+    private bool movementActive, stoppingActive, rotationActive;
 
     public Rigidbody parentForMovement;
     public int force = 5;
@@ -61,19 +61,37 @@ public class PlayerScript : MonoBehaviour {
         */
 
         if (lHand != null && movementActive && lHand.GetFistStrength() > 0.85f) {
+            //RotatedBy changes the angle of "forward", for ergonomics
             parentForMovement.AddForce(force * lHand.Direction.ToVector3().RotatedBy(Quaternion.Euler(0, forwardAngle, 0)));
         } else if (stoppingActive) {
             parentForMovement.AddRelativeForce(stoppingForce * -parentForMovement.velocity);
+        }
+
+        if (rHand != null && rotationActive) {
+            
+            parentForMovement.transform.Rotate(Vector3.up, rHand.PalmNormal.x);
         }
     }
 
     public void StartForceInHandDirection()
     {
+        Debug.Log("StartForce");
         movementActive = true;
     }
     public void EndForceInHandDirection()
     {
+        Debug.Log("EndForce");
         movementActive = false;
+    }
+    public void StartRotationInHandDirection()
+    {
+        Debug.Log("StartRotation");
+        rotationActive = true;
+    }
+    public void EndRotationInHandDirection()
+    {
+        Debug.Log("EndRotation");
+        rotationActive = false;
     }
     public void StartStoppingForce()
     {

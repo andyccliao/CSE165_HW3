@@ -24,8 +24,9 @@ public class RaceCourse : MonoBehaviour {
 	GameObject targetCheckpoint;
 	GameObject nextCheckpoint;
 	GameObject prevCheckpoint = null;
-	public GameObject arrow;
-	public Material checkpointGreyed;
+	public List<GameObject> arrows;
+    private int arrowi;
+    public Material checkpointGreyed;
 	public Material checkpointNext;
 	public Material checkpointPassed;
     int checkpointNum = 0;
@@ -43,10 +44,12 @@ public class RaceCourse : MonoBehaviour {
 			NoCourseEffects ();
 			return;
 		}
-		checkpointPos = new List<Vector3> (coordinates.Length); 
+        // Initialize all objects (after checking if track is valid)
+		checkpointPos = new List<Vector3> (coordinates.Length);
+        arrowi = 0;
 
-		/* Read coordinates */
-		for (int i = 0; i < coordinates.Length; i++) {
+        /* Read coordinates */
+        for (int i = 0; i < coordinates.Length; i++) {
 			//Debug.Log (coordinates[i]);
 			// For each checkpoint's coordinates
 			string[] splitCoord = coordinates [i].Split(' ');
@@ -71,25 +74,42 @@ public class RaceCourse : MonoBehaviour {
 
 		/* Create checkpoints (player is placed at first coordinate) */
 		checkpoints = new List<CheckpointState> ();
-		for (int cpi = 1; cpi < checkpointPos.Count; cpi++) {
+		for (int cpi = 1; cpi < 3/*checkpointPos.Count*/; cpi++) {
 			var ckpt = CreateCheckpoint (checkpointPos[cpi]);
 			checkpoints.Add (ckpt);
 		}
 
         /* Place player at first pos */
         player.transform.position = checkpointPos[0];
+        Debug.Log(player.transform.position);
         player.transform.LookAt(checkpoints[0].transform); // Rotate towards first checkpoint
-
+        
         /* Set first target checkpoint to noticable color */
 		checkpoints [checkpointNum].SetMaterial (checkpointNext);
         checkpoints[checkpointNum].SetOnTriggerEnterCallback(touchedTarget);
+
+        setArrowAtNextCheckpoint();
 	}
 
     void touchedTarget(CheckpointState targetckpt)
     {
-        // Disable touched checkpoint
-        checkpoints[checkpointNum].enabled = false;
-        // 
+        /* Disable touched checkpoint using animation */   //checkpoints[checkpointNum].enabled = false;
+        targetckpt.StartShrinking();
+
+        setArrowAtNextCheckpoint();
+    }
+    bool setArrowAtNextCheckpoint()
+    {
+        if (checkpointNum < checkpoints.Count) {
+            /* Put arrow inside checkpoint */
+            arrows[arrowi].transform.position = checkpoints[checkpointNum].transform.position;
+            arrows[arrowi].transform.LookAt(checkpoints[checkpointNum + 1].transform);
+            arrowi = (arrowi + 1) % arrows.Count;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 	
 	// Update is called once per frame
