@@ -19,7 +19,7 @@ public class CheckpointState : MonoBehaviour {
     {
         if (shrinkActivated) {
             if (transform.localScale.magnitude > 0.1) {
-                transform.localScale *= 0.1f;
+                transform.localScale *= 0.9f;
             }
             else {
                 UnenableSelf();
