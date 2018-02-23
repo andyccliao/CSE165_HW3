@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Leap;
 using Leap.Unity;
 
@@ -15,6 +16,13 @@ public class PlayerScript : MonoBehaviour {
     public int stoppingForce = 5;
     public float forwardAngle;
     public float torque = 0.01f;
+    private Vector3 rHandPos = Vector3.negativeInfinity; // used for rotation UX
+
+    bool gameStart = false;
+
+    public GameObject rCanvas;
+    public Text rText;
+
 
     private void Awake()
     {
@@ -30,46 +38,67 @@ public class PlayerScript : MonoBehaviour {
          * Using controller and frame does not; it is from the previous sdk */
         Hand lHand = Hands.Left;    //frame.Hand(leftHandId);
         Hand rHand = Hands.Right;   //frame.Hand(rightHandId);
-        //Debug.Log(leftHandId + " | " + rightHandId);
 
-        //Assumes only two hands
-        /*
-        if (lHand == null || rHand == null) {
-            if (frame.Hands.Count >= 1) {
-                Hand hand1 = frame.Hands[0];
-                if (hand1.IsLeft) {
-                    lHand = hand1;
-                    leftHandId = hand1.Id;
-                }
-                else if (hand1.IsRight) {
-                    rHand = hand1;
-                    rightHandId = hand1.Id;
-                }
-            }
-            if (frame.Hands.Count >= 2) {
-                Hand hand2 = frame.Hands[1];
-                if (hand2.IsLeft) {
-                    lHand = hand2;
-                    leftHandId = hand2.Id;
-                }
-                else if (hand2.IsRight) {
-                    rHand = hand2;
-                    rightHandId = hand2.Id;
-                }
-            }
-        }
-        */
-
-        if (lHand != null && movementActive && lHand.GetFistStrength() > 0.85f) {
-            //RotatedBy changes the angle of "forward", for ergonomics
-            parentForMovement.AddForce(force * lHand.Direction.ToVector3().RotatedBy(Quaternion.Euler(0, forwardAngle, 0)));
-        } else if (stoppingActive) {
-            parentForMovement.AddRelativeForce(stoppingForce * -parentForMovement.velocity);
-        }
-
-        if (rHand != null && rotationActive) {
+        if (!gameStart) {
+            rText.text = "Left Hand Thumbs Up to Start";
+        } else { 
             
-            parentForMovement.transform.Rotate(Vector3.up, rHand.PalmNormal.x);
+                                        //Debug.Log(leftHandId + " | " + rightHandId);
+
+            //Assumes only two hands
+            /*
+            if (lHand == null || rHand == null) {
+                if (frame.Hands.Count >= 1) {
+                    Hand hand1 = frame.Hands[0];
+                    if (hand1.IsLeft) {
+                        lHand = hand1;
+                        leftHandId = hand1.Id;
+                    }
+                    else if (hand1.IsRight) {
+                        rHand = hand1;
+                        rightHandId = hand1.Id;
+                    }
+                }
+                if (frame.Hands.Count >= 2) {
+                    Hand hand2 = frame.Hands[1];
+                    if (hand2.IsLeft) {
+                        lHand = hand2;
+                        leftHandId = hand2.Id;
+                    }
+                    else if (hand2.IsRight) {
+                        rHand = hand2;
+                        rightHandId = hand2.Id;
+                    }
+                }
+            }
+            */
+
+            if (lHand != null && movementActive && lHand.GetFistStrength() > 0.85f) {
+                //RotatedBy changes the angle of "forward", for ergonomics
+                parentForMovement.AddForce(force * lHand.Direction.ToVector3().RotatedBy(Quaternion.Euler(0, forwardAngle, 0)));
+            }
+            else if (stoppingActive) {
+                parentForMovement.AddRelativeForce(stoppingForce * -parentForMovement.velocity);
+            }
+
+            if (rHand != null && rotationActive) {
+                if (rHandPos.Equals(Vector3.negativeInfinity)) {
+                    rHandPos = rHand.PalmPosition.ToVector3();
+                }
+                float deltaX = (rHand.PalmPosition.ToVector3() - rHandPos).x;
+                parentForMovement.transform.Rotate(0, deltaX, 0);
+
+            }
+            else {
+                rHandPos = Vector3.negativeInfinity;
+            }
+        }
+
+        if (rCanvas.activeSelf && rHand != null) {
+            rCanvas.transform.position = (rHand.PalmPosition.ToVector3());
+            rCanvas.transform.rotation = Quaternion.LookRotation(rHand.Direction.ToVector3());
+            
+            Debug.Log(rCanvas.transform.rotation);
         }
     }
 

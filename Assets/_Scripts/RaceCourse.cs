@@ -89,6 +89,11 @@ public class RaceCourse : MonoBehaviour {
         checkpoints[checkpointNum].SetOnTriggerEnterCallback(touchedTarget);
 
         setArrowAtNextCheckpoint();
+
+
+
+        /********* START GAME **********/
+        /* Don't start countdown until thumbs up */
 	}
 
     void touchedTarget(CheckpointState targetckpt)
