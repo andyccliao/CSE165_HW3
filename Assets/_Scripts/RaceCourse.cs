@@ -11,16 +11,17 @@ public class RaceCourse : MonoBehaviour {
 	public Material noCourseSkybox;
 	public GameObject noCourseLightsOff;
     public GameObject noCourseLightOn;
-	private bool noCourse;
+	public bool noCourse;
 
 	/* RaceCourse */
 	// !!! REMEMBER THAT ALL RACECOURSE FILES ARE IN INCHES, AND MUST BE CONVERTED TO METERS
 	List<Vector3> checkpointPos;
-	List<CheckpointState> checkpoints;
+	public List<CheckpointState> checkpoints;
 	public CheckpointState checkpointPrefab;
 
     /* Race Game */
     public GameObject player;
+    public PlayerScript playerScript;
 	GameObject targetCheckpoint;
 	GameObject nextCheckpoint;
 	GameObject prevCheckpoint = null;
@@ -29,7 +30,9 @@ public class RaceCourse : MonoBehaviour {
     public Material checkpointGreyed;
 	public Material checkpointNext;
 	public Material checkpointPassed;
-    int checkpointNum = 0;
+    public int checkpointNum = 0;
+    public LineRenderer lineRenderer;
+
 
 	// Add Checkpoints to map
 	void Start () {
@@ -72,9 +75,13 @@ public class RaceCourse : MonoBehaviour {
 			checkpointPos[pos] *= 0.0254f;
 		}
 
+        /* Connect positions with line */
+        lineRenderer.positionCount = checkpointPos.Count;
+        lineRenderer.SetPositions(checkpointPos.ToArray());
+
 		/* Create checkpoints (player is placed at first coordinate) */
 		checkpoints = new List<CheckpointState> ();
-		for (int cpi = 1; cpi < 3/*checkpointPos.Count*/; cpi++) {
+		for (int cpi = 1; cpi < checkpointPos.Count; cpi++) {
 			var ckpt = CreateCheckpoint (checkpointPos[cpi]);
 			checkpoints.Add (ckpt);
 		}
@@ -82,13 +89,13 @@ public class RaceCourse : MonoBehaviour {
         /* Place player at first pos */
         player.transform.position = checkpointPos[0];
         Debug.Log(player.transform.position);
-        player.transform.LookAt(checkpoints[0].transform); // Rotate towards first checkpoint
+        player.transform.LookAt(checkpoints[checkpointNum].transform); // Rotate towards first checkpoint
         
         /* Set first target checkpoint to noticable color */
 		checkpoints [checkpointNum].SetMaterial (checkpointNext);
         checkpoints[checkpointNum].SetOnTriggerEnterCallback(touchedTarget);
 
-        setArrowAtNextCheckpoint();
+        setArrowAtTargetCheckpoint();
 
 
 
@@ -98,14 +105,27 @@ public class RaceCourse : MonoBehaviour {
 
     void touchedTarget(CheckpointState targetckpt)
     {
+        Debug.Log("TOUCHED SOMETHING????");
         /* Disable touched checkpoint using animation */   //checkpoints[checkpointNum].enabled = false;
+        targetckpt.SetMaterial(checkpointPassed);
         targetckpt.StartShrinking();
 
-        setArrowAtNextCheckpoint();
-    }
-    bool setArrowAtNextCheckpoint()
-    {
+        /* Set up next checkpoint */
+        checkpointNum += 1;
         if (checkpointNum < checkpoints.Count) {
+            checkpoints[checkpointNum].SetMaterial(checkpointNext);
+            checkpoints[checkpointNum].SetOnTriggerEnterCallback(touchedTarget);
+            setArrowAtTargetCheckpoint();
+        }
+        else { // Last Checkpoint
+            //checkpointNum += 1;
+            playerScript.EndGame();
+        }
+
+    }
+    bool setArrowAtTargetCheckpoint()
+    {
+        if (checkpointNum < checkpoints.Count-1) {
             /* Put arrow inside checkpoint */
             arrows[arrowi].transform.position = checkpoints[checkpointNum].transform.position;
             arrows[arrowi].transform.LookAt(checkpoints[checkpointNum + 1].transform);
@@ -141,4 +161,14 @@ public class RaceCourse : MonoBehaviour {
 			Debug.Log (item);
 		}
 	}
+
+    public Vector3 GetNextCheckpointPosition()
+    {
+        if (checkpointNum < checkpoints.Count) {
+            return checkpoints[checkpointNum].transform.position;
+        }
+        else {
+            return Vector3.negativeInfinity;
+        }
+    }
 }

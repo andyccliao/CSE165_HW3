@@ -8,7 +8,8 @@ public class CheckpointState : MonoBehaviour {
     bool shrinkActivated = false;
 
 	void OnTriggerEnter (Collider col) {
-		if (onTriggerEnterCallback != null) {
+        Debug.Log("CheckpointCollided: " + col.tag);
+		if (onTriggerEnterCallback != null && col.CompareTag("Player")) {
 			onTriggerEnterCallback (this);
 			onTriggerEnterCallback = null;
 		} 
